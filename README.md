@@ -1,6 +1,6 @@
 # Long Story Library
 
-raw javaScript utility library. Useful tools for javaScript developers. This is currently in pre-release. Better documentation will come soon.
+Raw javaScript utility library. Useful tools for javaScript developers. This is currently in pre-release. Better documentation will come soon.
 
 ## Installation
 
