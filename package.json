@@ -1,0 +1,28 @@
+{
+  "name": "long-story-library",
+  "version": "0.0.0",
+  "description": "Raw javaScript utility library. Useful tools for javaScript developers.",
+  "main": "build/_$.js",
+  "scripts": {
+    "test": "exit 0",
+    "build": "webpack --config webpack.config.prod.js",
+    "umd": "webpack --config webpack.config.umd.js",
+    "prepublish": "npm run buld && npm run umd"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LongStoryMedia/long-story-library"
+  },
+  "keywords": [
+    "javascript",
+    "utilities",
+    "raw",
+    "small"
+  ],
+  "author": "Scott Long <longstoryscott@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LongStoryMedia/long-story-library/issues"
+  },
+  "homepage": "https://github.com/LongStoryMedia/long-story-library#readme"
+}
