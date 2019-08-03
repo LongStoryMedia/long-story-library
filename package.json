@@ -3,6 +3,23 @@
   "version": "0.0.3",
   "description": "Raw javaScript utility library. Useful tools for javaScript developers.",
   "main": "build/_$.js",
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended"
+    ],
+    "env": {
+      "browser": true
+    },
+    "rules": {
+      "react/prop-types": "off",
+      "no-implied-eval": 1,
+      "no-extra-bind": 1,
+      "default-case": 1,
+      "class-methods-use-this": 1,
+      "block-scoped-var": 2,
+      "accessor-pairs": 1
+    }
+  },
   "scripts": {
     "test": "exit 0",
     "build": "webpack --config webpack.config.prod.js",
@@ -26,6 +43,8 @@
   },
   "homepage": "https://github.com/LongStoryMedia/long-story-library#readme",
   "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-loader": "^2.2.1",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6"
   }

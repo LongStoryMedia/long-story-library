@@ -122,6 +122,7 @@ _$.prototype.addListener = function(
 };
 _$.prototype.OBJ = function(nestedObj, pathArr, def) {
   if ((!def && !this.arrayLike(pathArr)) || !pathArr) {
+    def = pathArr;
     pathArr = nestedObj;
     nestedObj = this.arg;
   }
@@ -146,7 +147,7 @@ _$.prototype.glideTo = function(latitude, scrollDuration) {
   }
   var cosParameter = window.scrollY / 2,
     scrollCount = 0,
-    oldTimestamp = performance.now();
+    oldTimestamp = window.performance.now();
   window.requestAnimationFrame(step);
 };
 _$.prototype.arrayLike = function(obj) {
@@ -164,33 +165,34 @@ _$.prototype.sumAttr = function(coll, attr) {
   return total;
 };
 _$.prototype.id = function(name, parent) {
-  parent = parent || document;
+  parent = parent || window.document;
   return parent.getElementById(name);
 };
 _$.prototype.cl = function(name, parent) {
-  parent = parent || document;
+  parent = parent || window.document;
   return parent.getElementsByClassName(name);
 };
 _$.prototype.tags = function(name, parent) {
-  parent = parent || document;
+  parent = parent || window.document;
   return parent.getElementsByTagName(name);
 };
 _$.prototype.qs = function(name, parent) {
-  parent = parent || document;
+  parent = parent || window.document;
   return parent.querySelector(name);
 };
 _$.prototype.qsa = function(name, parent) {
-  parent = parent || document;
+  parent = parent || window.document;
   return parent.querySelectorAll(name);
 };
 _$.prototype.el = function(name) {
-  return document.createElement(name);
+  return window.document.createElement(name);
 };
 _$.prototype.toggleActive = function(el) {
   return el && el.classList && el.classList.toggle("active");
 };
 _$.prototype.frag = function(els, parent) {
-  var frag = document && document.createDocumentFragment();
+  var frag =
+    window.document && window.document.createDocumentFragment();
   parent = parent || frag;
   var _this = this;
   return (
@@ -284,7 +286,7 @@ _$.prototype.changeOnScroll = function(
   if (windowObj) {
     if (this.arrayLike(windowObj)) {
       for (var node in windowObj)
-        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]);
+        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]); //eslint-disable-line
     } else targets.push(windowObj);
   }
   windowObj = targets.concat(window);
@@ -292,7 +294,8 @@ _$.prototype.changeOnScroll = function(
     windowObj,
     ["scroll", "load"],
     function(e) {
-      return e.target.scrollTop >= breakpoint || window.scrollY >= breakpoint
+      return e.target.scrollTop >= breakpoint ||
+        window.scrollY >= breakpoint
         ? cbTrue(target)
         : cbFalse(target);
     },
@@ -306,7 +309,6 @@ _$.prototype.popUp = function(
   boxStyle,
   closeBtnStyle
 ) {
-  var _this = this;
   if ("function" == typeof confirmText) {
     closeBtnStyle = boxStyle;
     boxStyle = btnClick;
@@ -360,7 +362,7 @@ _$.prototype.popUp = function(
       ]
     }
   ]);
-  document.body.appendChild(frag);
+  window.document.body.appendChild(frag);
 };
 _$.prototype.count = function(arr, value) {
   if (!value && this.arg) {
@@ -392,7 +394,9 @@ _$.prototype.extractBase = function(url) {
       .pop()
       .split("/")[0];
   }
-  return extract(url && extract(url) ? url : window.location.href);
+  return extract(
+    url && extract(url) ? url : this.OBJ(window, ["location", "href"])
+  );
 };
 _$.prototype.absoluteUrl = function(url, file) {
   return (
@@ -405,7 +409,7 @@ _$.prototype.absoluteUrl = function(url, file) {
 };
 _$.prototype.rewriteDotPath = function(url) {
   var dotPathArr = url.split("/").filter(Boolean),
-    relHref = this.relativeUrl(window.location.href),
+    relHref = this.relativeUrl(this.OBJ(window, ["location", "href"])),
     navUp = this.count(dotPathArr, "..");
   return (
     "/" +
@@ -426,13 +430,13 @@ _$.prototype.leadAndTrailSlash = function(path) {
 _$.prototype.frame = function(path, file, ext) {
   ext = ext || "html";
   var hash = this.OBJ(window, ["location", "hash"]);
-  file = window.history.state
+  file = this.OBJ(window, ["history", "state"])
     ? this.OBJ(window, ["history", "state", "frame"])
     : hash
     ? hash.slice(1)
     : file;
   var rootnode = this.id("root"),
-    req = new XMLHttpRequest(),
+    req = new XMLHttpRequest(), //eslint-disable-line
     name = this.absoluteUrl(path, file) + "." + ext;
   req.open("GET", name, true);
   req.onreadystatechange = function() {
@@ -442,7 +446,7 @@ _$.prototype.frame = function(path, file, ext) {
         rootnode.innerHTML = req.responseText;
       }
     } catch (e) {
-      console.error(e, req.status);
+      console && console.error(e, req.status);
     }
   };
   req.send(null);
@@ -450,7 +454,7 @@ _$.prototype.frame = function(path, file, ext) {
 _$.prototype.initFrame = function(path) {
   var that = this,
     hash = this.OBJ(window, ["location", "hash"]),
-    file = window.history.state
+    file = this.OBJ(window, ["history", "state"])
       ? this.OBJ(window, ["history", "state", "frame"])
       : hash
       ? hash.slice(1)
@@ -473,21 +477,24 @@ _$.prototype.initFrame = function(path) {
 _$.prototype.frameLink = function(path, name, def) {
   name = name || def;
   var hash = this.OBJ(window, ["location", "hash"]),
-    file = window.history.state
+    file = this.OBJ(window, ["history", "state"])
       ? this.OBJ(window, ["history", "state", "frame"])
       : hash
       ? hash.slice(1)
       : "";
-  if ((this.toggleActive(this.id(file)), window.history.pushState)) {
+  if (
+    (this.toggleActive(this.id(file)),
+    this.OBJ(window, ["history", "pushState"]))
+  ) {
     var state = { frame: name },
-      popState = new PopStateEvent("popstate", { state: state });
+      popState = new PopStateEvent("popstate", { state: state }); //eslint-disable-line
     window.history.pushState({ frame: name }, name, "#" + name);
     this.frame(path, name);
     dispatchEvent(popState);
   } else window.location.hash = name;
 };
 _$.prototype.getXML = function(url, cb) {
-  var req = new XMLHttpRequest();
+  var req = new XMLHttpRequest(); //eslint-disable-line
   req.open("GET", url, true);
   req.onreadystatechange = function() {
     try {
@@ -497,18 +504,18 @@ _$.prototype.getXML = function(url, cb) {
         return cb ? cb(req.response) : req.response;
       }
     } catch (e) {
-      console.error(e, req.status);
+      console && console.error(e, req.status);
     }
   };
   req.send(null);
 };
 _$.prototype.parseXML = function(text, cb) {
-  var parser = new DOMParser();
+  var parser = new DOMParser(); //eslint-disable-line
   try {
     var doc = parser.parseFromString(text, "text/xml");
     return cb ? cb(doc) : doc;
   } catch (e) {
-    console.error(e);
+    console && console.error(e);
   }
 };
 _$.prototype.xmlNode = function(pNode, nodeName, def) {
@@ -536,11 +543,13 @@ _$.prototype._defineStatic = function(name, argTypes, cb) {
         for (var i = 0; i < argTypes.length; i++) validator[argTypes[i]] = i;
         if (!(typeof this.arg in validator))
           throw new TypeError(this.arg + " is not of type(s) " + argTypes);
+        return cb ? cb(this.arg) : this.arg;
       } catch (e) {
         throw new Error(e);
-      } finally {
-        return cb(this.arg);
       }
+    },
+    set: function(arg) {
+      this.arg = arg;
     },
     enumerable: true,
     configurable: true
@@ -581,6 +590,6 @@ _$.prototype._defineVPU = function(type) {
   }
 };
 
-try {
-  module.exports = _$;
-} catch (e) {}
+try { //eslint-disable-line
+  module.exports = _$; //eslint-disable-line
+} catch (e) {} //eslint-disable-line
