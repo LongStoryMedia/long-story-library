@@ -541,7 +541,9 @@ _$.prototype._defineStatic = function(name, argTypes, cb) {
       } finally {
         return cb(this.arg);
       }
-    }
+    },
+    enumerable: true,
+    configurable: true
   });
 };
 _$.prototype._defineVPU = function(type) {
