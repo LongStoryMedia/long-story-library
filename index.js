@@ -1,4 +1,4 @@
-"use strict"; //eslint-disable-line
+"use strict";
 function _$(arg) {
   if (!(this instanceof _$)) return new _$(arg);
   this.arg = arg;
@@ -34,6 +34,16 @@ function _$(arg) {
   this.xmlNode = this.xmlNode.bind(this);
   this._defineVPU = this._defineVPU.bind(this);
   this._defineStatic = this._defineStatic.bind(this);
+  this._defineStatic("bool", ["string", "boolean", undefined], function(arg) {
+    return "true" === arg || "yes" === arg || true === arg;
+  });
+  this._defineStatic("slash", ["string"], function(arg) {
+    return arg + "/";
+  });
+  this._defineVPU("vw");
+  this._defineVPU("vh");
+  this._defineVPU("vmax");
+  this._defineVPU("vmin");
   return this;
 }
 _$.prototype.addListener = function(
@@ -115,11 +125,10 @@ _$.prototype.OBJ = function(nestedObj, pathArr, def) {
     pathArr = nestedObj;
     nestedObj = this.arg;
   }
-  return (
-    pathArr.reduce(function(obj, key) {
-      return obj && "undefined" !== obj[key] ? obj[key] : void 0;
-    }, nestedObj) || def
-  );
+  var reducer = pathArr.reduce(function(obj, key) {
+    return obj && "undefined" !== obj[key] ? obj[key] : void 0;
+  }, nestedObj);
+  return typeof reducer !== "undefined" ? reducer : def;
 };
 _$.prototype.glideTo = function(latitude, scrollDuration) {
   latitude = latitude || 0;
@@ -298,27 +307,27 @@ _$.prototype.popUp = function(
   closeBtnStyle
 ) {
   var _this = this;
-  if("function" == typeof confirmText) {
-    closeBtnStyle = boxStyle
-    boxStyle = btnClick
-    btnClick = confirmText
-    confirmText = confirmText || "OK"
+  if ("function" == typeof confirmText) {
+    closeBtnStyle = boxStyle;
+    boxStyle = btnClick;
+    btnClick = confirmText;
+    confirmText = confirmText || "OK";
   }
-  if("object" == typeof confirmText) {
-    closeBtnStyle = btnClick
-    boxStyle = confirmText
+  if ("object" == typeof confirmText) {
+    closeBtnStyle = btnClick;
+    boxStyle = confirmText;
     btnClick = function() {
       return _$().remove(_$().id("__popUp"));
-    }
-    confirmText = confirmText || "OK"
+    };
+    confirmText = confirmText || "OK";
   }
-  if("object" == typeof btnClick) {
-    closeBtnStyle = boxStyle
-    boxStyle = btnClick
+  if ("object" == typeof btnClick) {
+    closeBtnStyle = boxStyle;
+    boxStyle = btnClick;
     btnClick = function() {
       return _$().remove(_$().id("__popUp"));
-    }
-    confirmText = confirmText || "OK"
+    };
+    confirmText = confirmText || "OK";
   }
   var frag = this.frag([
     {
@@ -570,19 +579,6 @@ _$.prototype._defineVPU = function(type) {
   }
 };
 
-(function(_$) {
-  _$._defineStatic("bool", ["string", "boolean", undefined], function(arg) {
-    return "true" === arg || "yes" === arg || true === arg;
-  });
-  _$._defineStatic("slash", ["string"], function(arg) {
-    return arg + "/";
-  });
-  _$._defineVPU("vw");
-  _$._defineVPU("vh");
-  _$._defineVPU("vmax");
-  _$._defineVPU("vmin");
-  if (typeof window !== "undefined") window.$$ = window._$;
-})(new _$());
 try {
   module.exports = _$;
 } catch (e) {}
