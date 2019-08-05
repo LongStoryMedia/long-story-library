@@ -559,9 +559,10 @@ _$.prototype.frameLink = function(path, name, def) {
   } else window.location.hash = name;
 };
 _$.prototype.getXML = function(url, cb) {
-  if ((typeof url === "function" && this.arg) || (!arguments.length && this.arg)) {
-    url = this.arg;
+  if (!url && this.arg) url = this.arg;
+  if (typeof url === "function" && this.arg) {
     cb = url;
+    url = this.arg;
   }
   var req = new XMLHttpRequest();
   req.open("GET", url, true);
@@ -579,9 +580,10 @@ _$.prototype.getXML = function(url, cb) {
   req.send(null);
 };
 _$.prototype.parseXML = function(text, cb) {
-  if ((typeof text === "function" && this.arg) || (!arguments.length && this.arg)) {
-    text = this.arg;
-    cb = text;
+  if (!url && this.arg) url = this.arg;
+  if (typeof url === "function" && this.arg) {
+    cb = url;
+    url = this.arg;
   }
   var parser = new DOMParser();
   try {
