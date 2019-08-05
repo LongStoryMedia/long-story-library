@@ -55,7 +55,7 @@ function _$(arg) {
           if (arguments.length) {
             this.vh = this._getHeightWithRef(this.arg, ref);
             this.vw = this._getWidthWithRef(this.arg, ref);
-            return returnSmaller(this._vw, this._vh);
+            return returnBigger(this._vw, this._vh);
           }
           this.vh = this._getHeightWithRef(this.arg);
           this.vw = this._getWidthWithRef(this.arg);
