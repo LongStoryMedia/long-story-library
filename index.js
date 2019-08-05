@@ -559,7 +559,7 @@ _$.prototype.frameLink = function(path, name, def) {
   } else window.location.hash = name;
 };
 _$.prototype.getXML = function(url, cb) {
-  if (typeof url === "function" && this.arg) {
+  if ((typeof url === "function" && this.arg) || (!arguments.length && this.arg)) {
     url = this.arg;
     cb = url;
   }
@@ -579,7 +579,7 @@ _$.prototype.getXML = function(url, cb) {
   req.send(null);
 };
 _$.prototype.parseXML = function(text, cb) {
-  if (typeof text === "function" && this.arg) {
+  if ((typeof text === "function" && this.arg) || (!arguments.length && this.arg)) {
     text = this.arg;
     cb = text;
   }
