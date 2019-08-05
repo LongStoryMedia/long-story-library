@@ -352,7 +352,7 @@ _$.prototype.changeOnScroll = function(
   if (windowObj) {
     if (this.arrayLike(windowObj)) {
       for (var node in windowObj)
-        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]); //eslint-disable-line
+        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]);
     } else targets.push(windowObj);
   }
   windowObj = targets.concat(window);
@@ -501,7 +501,7 @@ _$.prototype.frame = function(path, file, ext) {
     ? hash.slice(1)
     : file;
   var rootnode = this.id("root"),
-    req = new XMLHttpRequest(), //eslint-disable-line
+    req = new XMLHttpRequest(),
     name = this.absoluteUrl(path, file) + "." + ext;
   req.open("GET", name, true);
   req.onreadystatechange = function() {
@@ -552,14 +552,18 @@ _$.prototype.frameLink = function(path, name, def) {
     this.OBJ(window, ["history", "pushState"]))
   ) {
     var state = { frame: name },
-      popState = new PopStateEvent("popstate", { state: state }); //eslint-disable-line
+      popState = new PopStateEvent("popstate", { state: state });
     window.history.pushState({ frame: name }, name, "#" + name);
     this.frame(path, name);
     dispatchEvent(popState);
   } else window.location.hash = name;
 };
 _$.prototype.getXML = function(url, cb) {
-  var req = new XMLHttpRequest(); //eslint-disable-line
+  if (typeof url === "function" && this.arg) {
+    url = this.arg;
+    cb = url;
+  }
+  var req = new XMLHttpRequest();
   req.open("GET", url, true);
   req.onreadystatechange = function() {
     try {
@@ -575,28 +579,17 @@ _$.prototype.getXML = function(url, cb) {
   req.send(null);
 };
 _$.prototype.parseXML = function(text, cb) {
-  var parser = new DOMParser(); //eslint-disable-line
+  if (typeof text === "function" && this.arg) {
+    text = this.arg;
+    cb = text;
+  }
+  var parser = new DOMParser();
   try {
     var doc = parser.parseFromString(text, "text/xml");
     return cb ? cb(doc) : doc;
   } catch (e) {
     console && console.error(e);
   }
-};
-_$.prototype.xmlNode = function(pNode, nodeName, def) {
-  return (
-    (def = def || void 0),
-    this.OBJ(
-      Array.from(this.OBJ(pNode, ["childNodes"], []), function(cNode) {
-        return "[object Element]" === cNode.toString() &&
-          nodeName === cNode.nodeName
-          ? cNode
-          : null;
-      }).filter(Boolean),
-      [0, "textContent"],
-      def
-    )
-  );
 };
 _$.prototype._defineStatic = function(name, argTypes, cb) {
   if ("function" === typeof argTypes) cb = argTypes;
@@ -656,6 +649,5 @@ _$.prototype._defineVPU = function(type) {
 };
 
 try {
-  //eslint-disable-line
-  module.exports = _$; //eslint-disable-line
-} catch (e) {} //eslint-disable-line
+  module.exports = _$;
+} catch (e) {}
