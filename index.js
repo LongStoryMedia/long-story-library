@@ -352,7 +352,7 @@ _$.prototype.changeOnScroll = function(
   if (windowObj) {
     if (this.arrayLike(windowObj)) {
       for (var node in windowObj)
-        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]);
+        if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]); //eslint-disable-line
     } else targets.push(windowObj);
   }
   windowObj = targets.concat(window);
@@ -649,5 +649,5 @@ _$.prototype._defineVPU = function(type) {
 };
 
 try {
-  module.exports = _$;
-} catch (e) {}
+  module.exports = _$; //eslint-disable-line
+} catch (e) {} //eslint-disable-line
