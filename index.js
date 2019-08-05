@@ -2,50 +2,117 @@
 function _$(arg) {
   if (!(this instanceof _$)) return new _$(arg);
   this.arg = arg;
-  this.addListener = this.addListener.bind(this);
-  this.OBJ = this.OBJ.bind(this);
-  this.glideTo = this.glideTo.bind(this);
-  this.arrayLike = this.arrayLike.bind(this);
-  this.sumAttr = this.sumAttr.bind(this);
-  this.id = this.id.bind(this);
-  this.cl = this.cl.bind(this);
-  this.tags = this.tags.bind(this);
-  this.qs = this.qs.bind(this);
-  this.qsa = this.qsa.bind(this);
-  this.el = this.el.bind(this);
-  this.toggleActive = this.toggleActive.bind(this);
-  this.frag = this.frag.bind(this);
-  this.kids = this.kids.bind(this);
-  this.remove = this.remove.bind(this);
-  this.before = this.before.bind(this);
-  this.vpu = this.vpu.bind(this);
-  this.changeOnScroll = this.changeOnScroll.bind(this);
-  this.popUp = this.popUp.bind(this);
-  this.relativeUrl = this.relativeUrl.bind(this);
-  this.absoluteUrl = this.absoluteUrl.bind(this);
-  this.rewriteDotPath = this.rewriteDotPath.bind(this);
-  this.count = this.count.bind(this);
-  this.leadAndTrailSlash = this.leadAndTrailSlash.bind(this);
-  this.frame = this.frame.bind(this);
-  this.initFrame = this.initFrame.bind(this);
-  this.frameLink = this.frameLink.bind(this);
-  this.getXML = this.getXML.bind(this);
-  this.parseXML = this.parseXML.bind(this);
-  this.xmlNode = this.xmlNode.bind(this);
-  this._defineVPU = this._defineVPU.bind(this);
-  this._defineStatic = this._defineStatic.bind(this);
   this._defineStatic("bool", ["string", "boolean", undefined], function(arg) {
     return "true" === arg || "yes" === arg || true === arg;
   });
   this._defineStatic("slash", ["string"], function(arg) {
     return arg + "/";
   });
-  this._defineVPU("vw");
-  this._defineVPU("vh");
-  this._defineVPU("vmax");
-  this._defineVPU("vmin");
-  return this;
+  Object.defineProperties(this, {
+    ref: {
+      get: function() {
+        return window;
+      },
+      set: function(ref) {
+        this.ref = ref;
+      },
+      enumerable: true,
+      configurable: true
+    },
+    vw: {
+      get: function() {
+        return function(ref) {
+          if (arguments.length) {
+            return this._getWidthWithRef(this.arg, ref);
+          }
+          return this._getWidthWithRef(this.arg);
+        };
+      },
+      set: function(vw) {
+        this._vw = vw;
+      },
+      enumerable: true,
+      configurable: true
+    },
+    vh: {
+      get: function() {
+        return function(ref) {
+          if (arguments.length) {
+            return this._getHeightWithRef(this.arg, ref);
+          }
+          return this._getHeightWithRef(this.arg);
+        };
+      },
+      set: function(vh) {
+        this._vh = vh;
+      },
+      enumerable: true,
+      configurable: true
+    },
+    vmax: {
+      get: function() {
+        return function(ref) {
+          if (arguments.length) {
+            this.vh = this._getHeightWithRef(this.arg, ref);
+            this.vw = this._getWidthWithRef(this.arg, ref);
+            return returnSmaller(this._vw, this._vh);
+          }
+          this.vh = this._getHeightWithRef(this.arg);
+          this.vw = this._getWidthWithRef(this.arg);
+          return returnBigger(this._vw, this._vh);
+        };
+        function returnBigger(vw, vh) {
+          return vw > vh ? vw : vh;
+        }
+      },
+      set: function(vmin) {
+        this.vmin = vmin;
+      },
+      enumerable: true,
+      configurable: true
+    },
+    vmin: {
+      get: function() {
+        return function(ref) {
+          if (arguments.length) {
+            this.vh = this._getHeightWithRef(this.arg, ref);
+            this.vw = this._getWidthWithRef(this.arg, ref);
+            return returnSmaller(this._vw, this._vh);
+          }
+          this.vh = this._getHeightWithRef(this.arg);
+          this.vw = this._getWidthWithRef(this.arg);
+          return returnSmaller(this._vw, this._vh);
+        };
+        function returnSmaller(vw, vh) {
+          return vw < vh ? vw : vh;
+        }
+      },
+      set: function(vmin) {
+        this.vmin = vmin;
+      },
+      enumerable: true,
+      configurable: true
+    }
+  });
+  // console.log(this)
+  // return this;
 }
+_$.prototype._getWidthWithRef = function(arg, ref) {
+  return (
+    //directly returning one or the other dependent on arguments length causes initialization at 0
+    //it will then remain at 0 with a ref.
+    //but 0, when coerced to boolean will evaluate to false, causing initialization with window
+    (((ref && ref.clientWidth) || window.innerWidth) / 100) * arg
+  );
+};
+_$.prototype._getHeightWithRef = function(arg, ref) {
+  return (
+    //directly returning one or the other dependent on arguments length causes initialization at 0
+    //it will then remain at 0 with a ref.
+    //but 0, when coerced to boolean will evaluate to false, causing initialization with window
+    (((ref && ref.clientHeight) || window.innerHeight) / 100) * arg
+  );
+};
 _$.prototype.addListener = function(
   els,
   evt,
@@ -191,8 +258,7 @@ _$.prototype.toggleActive = function(el) {
   return el && el.classList && el.classList.toggle("active");
 };
 _$.prototype.frag = function(els, parent) {
-  var frag =
-    window.document && window.document.createDocumentFragment();
+  var frag = window.document && window.document.createDocumentFragment();
   parent = parent || frag;
   var _this = this;
   return (
@@ -294,8 +360,7 @@ _$.prototype.changeOnScroll = function(
     windowObj,
     ["scroll", "load"],
     function(e) {
-      return e.target.scrollTop >= breakpoint ||
-        window.scrollY >= breakpoint
+      return e.target.scrollTop >= breakpoint || window.scrollY >= breakpoint
         ? cbTrue(target)
         : cbFalse(target);
     },
@@ -590,6 +655,7 @@ _$.prototype._defineVPU = function(type) {
   }
 };
 
-try { //eslint-disable-line
+try {
+  //eslint-disable-line
   module.exports = _$; //eslint-disable-line
 } catch (e) {} //eslint-disable-line
