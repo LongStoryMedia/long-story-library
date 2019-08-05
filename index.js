@@ -580,10 +580,10 @@ _$.prototype.getXML = function(url, cb) {
   req.send(null);
 };
 _$.prototype.parseXML = function(text, cb) {
-  if (!url && this.arg) url = this.arg;
-  if (typeof url === "function" && this.arg) {
-    cb = url;
-    url = this.arg;
+  if (!text && this.arg) text = this.arg;
+  if (typeof text === "function" && this.arg) {
+    cb = text;
+    text = this.arg;
   }
   var parser = new DOMParser();
   try {
