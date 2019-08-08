@@ -2,22 +2,21 @@
 function _$(arg) {
   if (!(this instanceof _$)) return new _$(arg);
   this.arg = arg;
-  this._defineStatic("bool", ["string", "boolean", undefined], function(arg) {
-    return "true" === arg || "yes" === arg || true === arg;
-  });
-  this._defineStatic("slash", ["string"], function(arg) {
-    return arg + "/";
-  });
   Object.defineProperties(this, {
-    ref: {
+    bool: {
       get: function() {
-        return window;
-      },
-      set: function(ref) {
-        this.ref = ref;
-      },
-      enumerable: true,
-      configurable: true
+        return "true" === this.arg || "yes" === this.arg || true === this.arg;
+      }
+    },
+    slash: {
+      get: function() {
+        return this.arg + "/";
+      }
+    },
+    element: {
+      get: function() {
+        return document.createElement(this.arg);
+      }
     },
     vw: {
       get: function() {
@@ -94,34 +93,35 @@ function _$(arg) {
       configurable: true
     }
   });
-  // console.log(this)
-  // return this;
 }
 _$.prototype._getWidthWithRef = function(arg, ref) {
   return (
-    //directly returning one or the other dependent on arguments length causes initialization at 0
-    //it will then remain at 0 with a ref.
-    //but 0, when coerced to boolean will evaluate to false, causing initialization with window
+    //directly returning one or the other dependent on arguments causes initialization at 0
+    //it will then remain at 0 when ref is supplied.
+    //but 0, when coerced to boolean, will evaluate to false, causing initialization with window
     (((ref && ref.clientWidth) || window.innerWidth) / 100) * arg
   );
 };
 _$.prototype._getHeightWithRef = function(arg, ref) {
   return (
-    //directly returning one or the other dependent on arguments length causes initialization at 0
-    //it will then remain at 0 with a ref.
-    //but 0, when coerced to boolean will evaluate to false, causing initialization with window
+    //directly returning one or the other dependent on arguments causes initialization at 0
+    //it will then remain at 0 when ref is supplied.
+    //but 0, when coerced to boolean, will evaluate to false, causing initialization with window
     (((ref && ref.clientHeight) || window.innerHeight) / 100) * arg
   );
 };
-_$.prototype.addListener = function(
-  els,
-  evt,
-  cb,
-  iterate,
-  options,
-  useCapture
-) {
+_$.prototype.addListener = function(els, evt, cb, options, useCapture) {
+  if (
+    typeof options === "boolean" &&
+    (typeof useCapture === "object" || !useCapture)
+  ) {
+    var swap = useCapture;
+    useCapture = options;
+    options = swap;
+  }
   var _this = this;
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Safely_detecting_option_support
   var passiveSupport = false;
   try {
     options = {
@@ -129,6 +129,8 @@ _$.prototype.addListener = function(
         return (passiveSupport = true);
       }
     };
+    window.addEventListener("test", options, options);
+    window.removeEventListener("test", options, options);
   } catch (e) {
     passiveSupport = false;
   }
@@ -137,39 +139,35 @@ _$.prototype.addListener = function(
     return output(els, _this.arg, _this);
   return output(evt, els, _this);
 
-  function output(e, l, _this) {
+  function output(e, l, _$this) {
     return Array.isArray(e)
       ? e.forEach(function(e) {
           listen(l, e);
-        }, _this)
+        }, _$this)
       : listen(l, e);
   }
 
   function listen(els, evt) {
     var __this = _this;
 
-    if (((iterate = iterate || false), Array.isArray(els))) {
-      var ___this = __this;
+    if (Array.isArray(els)) {
       els.map(function(el) {
-        return ___this.arrayLike(el)
-          ? addListenerToEach(el, ___this)
-          : __L$_listener(el, evt);
-      }, ___this);
+        return __this.arrayLike(el)
+          ? addListenerToEach(el, __this)
+          : _$listen(el, evt);
+      }, __this);
     }
 
-    return (
-      __this.arrayLike(els) && iterate && addListenerToEach(els),
-      __L$_listener(els, evt)
-    );
+    return __this.arrayLike(els) && addListenerToEach(els), _$listen(els, evt);
 
     function addListenerToEach(el, _this) {
       return Array.from(el).forEach(function(l) {
-        __L$_listener(l, evt);
+        _$listen(l, evt);
       }, _this);
     }
   }
 
-  function __L$_listener(el, evt) {
+  function _$listen(el, evt) {
     if (el) {
       if (_this.OBJ(el, ["addEventListener"])) {
         return passiveSupport
@@ -177,7 +175,7 @@ _$.prototype.addListener = function(
               evt,
               cb,
               options || { passive: true, capture: true, once: true },
-              void 0 !== useCapture && (useCapture || true)
+              useCapture || true
             )
           : el.addEventListener(evt, cb, useCapture || true);
       }
@@ -187,22 +185,24 @@ _$.prototype.addListener = function(
     }
   }
 };
-_$.prototype.OBJ = function(nestedObj, pathArr, def) {
-  if ((!def && !this.arrayLike(pathArr)) || !pathArr) {
-    def = pathArr;
+_$.prototype.OBJ = function(nestedObj, pathArr, defaultValue, noUndefined) {
+  if (this.arrayLike(nestedObj) && this.arg) {
+    noUndefined = defaultValue;
+    defaultValue = pathArr;
     pathArr = nestedObj;
     nestedObj = this.arg;
   }
-  var reducer = pathArr.reduce(function(obj, key) {
-    return obj && "undefined" !== obj[key] ? obj[key] : void 0;
+  return pathArr.reduce(function(obj, key) {
+    if (noUndefined && obj.hasOwnProperty(key)) return obj[key] || defaultValue; // eslint-disable-line
+    if (obj.hasOwnProperty(key)) return obj[key]; // eslint-disable-line
+    return void 0 || defaultValue;
   }, nestedObj);
-  return typeof reducer !== "undefined" ? reducer : def;
 };
-_$.prototype.glideTo = function(latitude, scrollDuration) {
+_$.prototype.glideTo = function(latitude, speed) {
   latitude = latitude || 0;
-  scrollDuration = scrollDuration || 0.5;
+  speed = speed || 0.5;
   function step(newTimestamp) {
-    scrollCount += Math.PI / (scrollDuration / (newTimestamp - oldTimestamp));
+    scrollCount += Math.PI / (speed / (newTimestamp - oldTimestamp));
     scrollCount >= Math.PI && window.scrollTo(0, 0);
     0 !== window.scrollY &&
       window.scrollTo(
@@ -226,40 +226,55 @@ _$.prototype.arrayLike = function(obj) {
       (0 === obj.length || (obj.length > 0 && obj.length - 1 in obj)))
   );
 };
-_$.prototype.sumAttr = function(coll, attr) {
-  var total = 0;
-  for (var i = 0; i < coll.length; i++) total += coll[i][attr];
-  return total;
+_$.prototype.id = function(selector, parent) {
+  if (!selector && this.arg) {
+    parent = selector;
+    selector = this.arg;
+  }
+  parent = parent || document;
+  return parent.getElementById(selector);
 };
-_$.prototype.id = function(name, parent) {
-  parent = parent || window.document;
-  return parent.getElementById(name);
+_$.prototype.cl = function(selector, parent) {
+  if (!selector && this.arg) {
+    parent = selector;
+    selector = this.arg;
+  }
+  parent = parent || document;
+  return parent.getElementsByClassName(selector);
 };
-_$.prototype.cl = function(name, parent) {
-  parent = parent || window.document;
-  return parent.getElementsByClassName(name);
+_$.prototype.tags = function(selector, parent) {
+  if (!selector && this.arg) {
+    parent = selector;
+    selector = this.arg;
+  }
+  parent = parent || document;
+  return parent.getElementsByTagName(selector);
 };
-_$.prototype.tags = function(name, parent) {
-  parent = parent || window.document;
-  return parent.getElementsByTagName(name);
+_$.prototype.qs = function(selector, parent) {
+  if (!selector && this.arg) {
+    parent = selector;
+    selector = this.arg;
+  }
+  parent = parent || document;
+  return parent.querySelector(selector);
 };
-_$.prototype.qs = function(name, parent) {
-  parent = parent || window.document;
-  return parent.querySelector(name);
+_$.prototype.qsa = function(selector, parent) {
+  if (!selector && this.arg) {
+    parent = selector;
+    selector = this.arg;
+  }
+  parent = parent || document;
+  return parent.querySelectorAll(selector);
 };
-_$.prototype.qsa = function(name, parent) {
-  parent = parent || window.document;
-  return parent.querySelectorAll(name);
-};
-_$.prototype.el = function(name) {
-  return window.document.createElement(name);
+_$.prototype.el = function(selector) {
+  return document.createElement(selector);
 };
 _$.prototype.toggleActive = function(el) {
-  return el && el.classList && el.classList.toggle("active");
+  return this.OBJ(el, ["classList"], el.className).toggle("active");
 };
-_$.prototype.frag = function(els, parent) {
-  var frag = window.document && window.document.createDocumentFragment();
-  parent = parent || frag;
+_$.prototype.frag = function(els, _parent) {
+  var frag = document.createDocumentFragment();
+  _parent = _parent || frag;
   var _this = this;
   return (
     els.forEach(function(el) {
@@ -276,41 +291,32 @@ _$.prototype.frag = function(els, parent) {
           "type" !== attr &&
           (l[attr] = el[attr]);
       if (el.style) for (var s in el.style) l.style[s] = el.style[s];
-      el.text && (l.innerHTML = el.text);
-      el.children && l.appendChild(this.frag(el.children, l));
-      el.onclick &&
-        this.addListener(
-          l,
-          "click",
-          el.onclick,
-          false,
-          { passive: true, once: true, capture: true },
-          true
-        );
-      parent.appendChild(l);
+      if (el.text) l.innerHTML = el.text;
+      if (el.children) l.appendChild(this.frag(el.children, l));
+      if (el.onclick) this.addListener(l, "click", el.onclick);
+      _parent.appendChild(l);
     }, _this),
     frag
   );
 };
-_$.prototype.remove = function(name) {
-  return name.parentElement && name.parentElement.removeChild(name);
+_$.prototype.remove = function(el) {
+  return name.parentElement && el.parentElement.removeChild(el);
 };
-_$.prototype.before = function(name, newEl) {
-  return name.parentElement && name.parentElement.insertBefore(newEl, name);
+_$.prototype.before = function(el, newEl) {
+  return name.parentElement && el.parentElement.insertBefore(newEl, el);
 };
-_$.prototype.kids = function(name, findParentBy) {
-  if ("object" == typeof name && !findParentBy)
-    return this.arrayLike(name) ? name[0].children : name.children;
-  if (
-    ((findParentBy = findParentBy || "id"),
-    !Object.getOwnPropertyNames(this).includes(findParentBy))
-  )
-    throw new Error(
-      "'kids' requires 'id', 'cl', or 'tags' as the second argument. This indicates how the browser should find the element - by id, className, or tagName respectively. Note that for 'cl' and 'tags', the browser will return only the first match"
-    );
-  return (
-    this.OBJ(this[findParentBy](name), [0, "children"]) ||
-    this.OBJ(this[findParentBy](name), ["children"])
+_$.prototype.kids = function(el, findParentBy) {
+  if ("object" === typeof el && !findParentBy)
+    return this.arrayLike(el) ? el[0].children : el.children;
+  findParentBy = findParentBy || "id";
+  return this.OBJ(
+    this[findParentBy](el),
+    [0, "children"],
+    this.OBJ(
+      this[findParentBy](el),
+      ["children"],
+      this.OBJ(this.qs(el), [0, "children"])
+    )
   );
 };
 _$.prototype.vpu = function(num, type) {
@@ -427,7 +433,7 @@ _$.prototype.popUp = function(
       ]
     }
   ]);
-  window.document.body.appendChild(frag);
+  document.body.appendChild(frag);
 };
 _$.prototype.count = function(arr, value) {
   if (!value && this.arg) {
@@ -505,13 +511,9 @@ _$.prototype.frame = function(path, file, ext) {
     name = this.absoluteUrl(path, file) + "." + ext;
   req.open("GET", name, true);
   req.onreadystatechange = function() {
-    try {
-      if (4 === req.readyState) {
-        if (200 !== req.status) throw new Error("XMLHttpError: " + req.status);
-        rootnode.innerHTML = req.responseText;
-      }
-    } catch (e) {
-      console && console.error(e, req.status);
+    if (4 === req.readyState) {
+      if (200 !== req.status) throw new Error("XMLHttpError: " + req.status);
+      rootnode.innerHTML = req.responseText;
     }
   };
   req.send(null);
@@ -567,15 +569,8 @@ _$.prototype.getXML = function(url, cb) {
   var req = new XMLHttpRequest();
   req.open("GET", url, true);
   req.onreadystatechange = function() {
-    try {
-      if (4 === req.readyState) {
-        if (200 !== req.status)
-          throw new Error("XMLHttpError: " + req.response);
-        return cb ? cb(req.response) : req.response;
-      }
-    } catch (e) {
-      console && console.error(e, req.status);
-    }
+    if (200 !== req.status) throw new Error("XMLHttpError: " + req.response);
+    return cb ? cb(req.response) : req.response;
   };
   req.send(null);
 };
@@ -586,68 +581,8 @@ _$.prototype.parseXML = function(text, cb) {
     text = this.arg;
   }
   var parser = new DOMParser();
-  try {
-    var doc = parser.parseFromString(text, "text/xml");
-    return cb ? cb(doc) : doc;
-  } catch (e) {
-    console && console.error(e);
-  }
-};
-_$.prototype._defineStatic = function(name, argTypes, cb) {
-  if ("function" === typeof argTypes) cb = argTypes;
-  if (argTypes && !this.arrayLike(argTypes)) argTypes = [].concat(argTypes);
-  return Object.defineProperty(_$.prototype, name, {
-    get: function() {
-      try {
-        var validator = {};
-        for (var i = 0; i < argTypes.length; i++) validator[argTypes[i]] = i;
-        if (!(typeof this.arg in validator))
-          throw new TypeError(this.arg + " is not of type(s) " + argTypes);
-        return cb ? cb(this.arg) : this.arg;
-      } catch (e) {
-        throw new Error(e);
-      }
-    },
-    set: function(arg) {
-      this.arg = arg;
-    },
-    enumerable: true,
-    configurable: true
-  });
-};
-_$.prototype._defineVPU = function(type) {
-  try {
-    if (typeof window !== "undefined") {
-      var _type;
-      var vw = window.innerWidth / 100;
-      var vh = window.innerHeight / 100;
-      var vmax = vw > vh ? vw : vh;
-      var vmin = vw < vh ? vw : vh;
-      switch (type) {
-        case "vw":
-          _type = vw;
-          break;
-        case "vh":
-          _type = vh;
-          break;
-        case "vmax":
-          _type = vmax;
-          break;
-        case "vmin":
-          _type = vmin;
-          break;
-        default:
-          _type = vw;
-          break;
-      }
-      return this._defineStatic(type, "number", function(arg) {
-        return arg * _type;
-      });
-    }
-    return 0;
-  } catch (e) {
-    throw new Error(e);
-  }
+  var doc = parser.parseFromString(text, "text/xml");
+  return cb ? cb(doc) : doc;
 };
 
 try {

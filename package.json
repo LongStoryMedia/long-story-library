@@ -24,7 +24,7 @@
     "test": "exit 0",
     "build": "webpack --config webpack.config.prod.js",
     "umd": "webpack --config webpack.config.umd.js",
-    "prepublish": "npm run build --scripts-prepend-node-path && npm run umd --scripts-prepend-node-path"
+    "prepare": "npm run build --scripts-prepend-node-path && npm run umd --scripts-prepend-node-path"
   },
   "repository": {
     "type": "git",

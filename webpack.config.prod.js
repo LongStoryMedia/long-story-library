@@ -15,8 +15,7 @@ module.exports = {
         test: /\.(m?jsx?)$/,
         exclude: /(build|umd)/,
         enforce: "pre",
-        use: require.resolve("eslint-loader"),
-        // include: path.join(__dirname, "src")
+        use: require.resolve("eslint-loader")
       }
     ]
   }
