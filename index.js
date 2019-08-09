@@ -281,8 +281,8 @@ _$.prototype.el = function(selector) {
 };
 
 _$.prototype.toggleActive = function(el) {
-  return this.OBJ(el, ["classList"], el.className).toggle("active");
-};
+  return el && el.classList && el.classList.toggle("active");
+}
 
 _$.prototype.frag = function(els, _parent) {
   var frag = document.createDocumentFragment();
