@@ -29,9 +29,20 @@ If you use the UMD build you can find the library on `window._$`.
 ## Properties
 
 ### `arg`
+
+Argument to initialize certain methods
+
 ### `bool`
+
+coerce to `boolean` and return value. returns `true` _ONLY_ for `"true"`, `true`, and `"yes"`. `_$(this.arg).bool`
+
 ### `slash`
+
+returns string with slash appended to the end. `_$(this.arg).slash`
+
 ### `element`
+
+creates new element. `_$(this.arg).elememt`
 
 ## Methods
 
