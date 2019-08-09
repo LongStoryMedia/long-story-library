@@ -121,7 +121,7 @@ read more [on mdn](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/
 <u>description</u>: A `Boolean` indicating whether events of this type will be dispatched to the registered `listener` before being dispatched to any `EventTarget` beneath it in the DOM tree.
 
 
-### `OBJ(nestedObj, pathArr, defaultValue, noUndefined)`
+### `OBJ(nestedObj, pathArr, defaultValue)`
 **description**
 
 A more elegant solution to returning calues from nested objects with possible properties. `nestedObj` may be supplied as `this.arg`, as in `_$(nestedObj).OBJ(pathArr, def)`. supply an array of the optional properties down the chain, and optionally a default value.
@@ -164,13 +164,8 @@ var mediumImage = _$(img).OBJ([
 - **defaultValue**\
 <u>type</u>: any\
 <u>default</U>: `undefined`\
-<u>description</u>: Default value when `nestedObj` property/sub-property has not been declared. \
- **note**: if the property has been declared as undefined, this method will return the undefined value rather than `defaultValue`. To disable this behavior and use the `defaultValue` instead, set `noUndefined` to true.
+<u>description</u>: Default value when `nestedObj` property/sub-property is `undefined`.
 
-- **noUndefined**\
-<u>type</u>: `boolean`\
-<u>default</U>: `undefined`\
-<u>description</u>: When true, property values declared as `undefined` will be disregarded in favor of `defaultValue`.
 
 **example**
 ```js
