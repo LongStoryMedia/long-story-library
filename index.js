@@ -527,9 +527,9 @@ _$.prototype._leadAndTrailSlash = function(path) {
 
 _$.prototype.frame = function(path, file, ext) {
   ext = ext || "html";
+  file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : file);
   var rootnode = this.id("root");
   var hash = this.OBJ(location, ["hash"]);
-  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
   var req = new XMLHttpRequest();
   var name = this._absoluteUrl(path, file) + "." + ext;
   req.open("GET", name, true);
@@ -552,7 +552,7 @@ _$.prototype.initFrame = function(path) {
     ["hashchange", "popstate"],
     function(e) {
       var frame = e.state ? e.state.frame : e.newURL.split("#").pop();
-      _this.toggleActive(that.id(frame));
+      _this.toggleActive(_this.id(frame));
       _this.frame(path, file);
     },
     { once: false, passive: false, capture: false },
