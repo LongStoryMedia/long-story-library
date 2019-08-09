@@ -313,11 +313,11 @@ _$.prototype.frag = function(els, _parent) {
 };
 
 _$.prototype.remove = function(el) {
-  return name.parentElement && el.parentElement.removeChild(el);
+  return el.parentElement && el.parentElement.removeChild(el);
 };
 
 _$.prototype.before = function(el, newEl) {
-  return name.parentElement && el.parentElement.insertBefore(newEl, el);
+  return el.parentElement && el.parentElement.insertBefore(newEl, el);
 };
 
 _$.prototype.kids = function(el, findParentBy) {
