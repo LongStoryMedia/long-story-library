@@ -523,55 +523,70 @@ _$.prototype._leadAndTrailSlash = function(path) {
   return /\/$/.test(leadPath) ? leadPath : leadPath + "/";
 };
 
-_$.prototype.frame = function(path, file, ext) {
-  ext = ext || "html";
-  file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : file);
-  var rootnode = this.id("root");
-  var hash = this.OBJ(location, ["hash"]);
-  var req = new XMLHttpRequest();
-  var name = this._absoluteUrl(path, file) + "." + ext;
-  req.open("GET", name, true);
-  req.onreadystatechange = function() {
-    if (4 === req.readyState) {
-      if (200 !== req.status)
-        throw new Error("XMLHttpError: " + req.status + "\n" + req.response);
-      rootnode.innerHTML = req.responseText;
-    }
-  };
-  req.send(null);
-};
+_$.prototype.frame = function(path, file) {
+  var hash = this.OBJ(window, ["location", "hash"]);
+  file = window.history.state
+    ? this.OBJ(window, ["history", "state", "frame"])
+    : hash
+    ? hash.slice(1)
+    : file;
+  var rootnode = this.id("root"),
+    req = new XMLHttpRequest(),
+    name = this.absoluteUrl(path, file) + ".html";
+  req.open("GET", name, !0),
+    (req.onreadystatechange = function() {
+      try {
+        if (4 === req.readyState) {
+          if (200 !== req.status)
+            throw new Error("XMLHttpError: " + req.status);
+          rootnode.innerHTML = req.responseText;
+        }
+      } catch (e) {
+        console.error(e, req.status);
+      }
+    }),
+    req.send(null);
+}
 
 _$.prototype.initFrame = function(path) {
-  var _this = this;
-  var hash = this.OBJ(location, ["hash"]);
-  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
+  var that = this,
+    hash = this.OBJ(window, ["location", "hash"]),
+    file = window.history.state
+      ? this.OBJ(window, ["history", "state", "frame"])
+      : hash
+      ? hash.slice(1)
+      : "";
   this.addListener(
     window,
     ["hashchange", "popstate"],
     function(e) {
       var frame = e.state ? e.state.frame : e.newURL.split("#").pop();
-      _this.toggleActive(_this.id(frame));
-      _this.frame(path, file);
+      that.toggleActive(that.id(frame)), that.frame(path, file);
     },
-    { once: false, passive: false, capture: false },
-    false
-  );
-  this.toggleActive(this.id(file));
-  return this.frame(path, file);
-};
+    !1,
+    { once: !1, passive: !1, capture: !1 },
+    !1
+  ),
+    this.frame(path, file),
+    this.toggleActive(this.id(file));
+}
 
 _$.prototype.frameLink = function(path, name, def) {
   name = name || def;
-  var hash = this.OBJ(location, ["hash"]);
-  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
-  if ((this.toggleActive(this.id(file)), this.OBJ(history, ["pushState"]))) {
+  var hash = this.OBJ(window, ["location", "hash"]),
+    file = window.history.state
+      ? this.OBJ(window, ["history", "state", "frame"])
+      : hash
+      ? hash.slice(1)
+      : "";
+  if ((this.toggleActive(this.id(file)), window.history.pushState)) {
     var state = { frame: name },
       popState = new PopStateEvent("popstate", { state: state });
-    history.pushState({ frame: name }, name, "#" + name);
-    this.frame(path, name);
-    dispatchEvent(popState);
-  } else location.hash = name;
-};
+    window.history.pushState({ frame: name }, name, "#" + name),
+      this.frame(path, name),
+      dispatchEvent(popState);
+  } else window.location.hash = name;
+}
 
 _$.prototype.getXML = function(url, cb) {
   if (!url && this.arg) url = this.arg;
