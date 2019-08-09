@@ -175,10 +175,9 @@ var obj = {
 console.log(
   _$(obj).OBJ(["lvl1", "isFalse"], 1),
   _$(obj).OBJ(["lvl1", "isUndefined"], 1),
-  _$(obj).OBJ(["lvl1", "isUndefined"], 1, true),
   _$(obj).OBJ(["lvl1", "notDeclared"], 1)
 )
-// output: false undefined 1 1
+// output: false 1 1
 ```
 
 
