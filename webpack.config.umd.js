@@ -3,7 +3,7 @@ const webpack = require("webpack");
 
 module.exports = {
   mode: "production",
-  entry: "./index.js",
+  entry: ["./polyfills.js", "./index.js"],
   output: {
     library: '_$',
     libraryTarget: 'umd',
