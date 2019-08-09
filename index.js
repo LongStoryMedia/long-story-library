@@ -532,7 +532,7 @@ _$.prototype.frame = function(path, file) {
     : file;
   var rootnode = this.id("root"),
     req = new XMLHttpRequest(),
-    name = this.absoluteUrl(path, file) + ".html";
+    name = this._absoluteUrl(path, file) + ".html";
   req.open("GET", name, !0),
     (req.onreadystatechange = function() {
       try {
