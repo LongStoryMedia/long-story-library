@@ -189,18 +189,16 @@ _$.prototype.addListener = function(els, evt, cb, options, useCapture) {
   }
 };
 
-_$.prototype.OBJ = function(nestedObj, pathArr, defaultValue, noUndefined) {
-  if (this.arrayLike(nestedObj) && this.arg) {
-    noUndefined = defaultValue;
-    defaultValue = pathArr;
+_$.prototype.OBJ = function(nestedObj, pathArr, def) {
+  if ((!def && !this.arrayLike(pathArr)) || !pathArr) {
+    def = pathArr;
     pathArr = nestedObj;
     nestedObj = this.arg;
   }
-  return pathArr.reduce(function(obj, key) {
-    if (noUndefined && obj.hasOwnProperty(key)) return obj[key] || defaultValue; // eslint-disable-line
-    if (obj.hasOwnProperty(key)) return obj[key]; // eslint-disable-line
-    return void 0 || defaultValue;
+  var reducer = pathArr.reduce(function(obj, key) {
+    return obj && "undefined" !== obj[key] ? obj[key] : void 0;
   }, nestedObj);
+  return typeof reducer !== "undefined" ? reducer : def;
 };
 
 _$.prototype.glideTo = function(latitude, speed) {
