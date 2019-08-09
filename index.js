@@ -471,7 +471,7 @@ _$.prototype._relativeUrl = function(url) {
   return url
     ? /^https?:\/\//.test(url.toLowerCase())
       ? removeBase(url.split("://").pop())
-      : /^(www\.)?.+?\.\w{2,4}\//.test(this(url).slash)
+      : /^(www\.)?.+?\.\w{2,4}\//.test(_$(url).slash)
       ? removeBase(url)
       : /^\.\./.test(url)
       ? this._rewriteDotPath(url)
