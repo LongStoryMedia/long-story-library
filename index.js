@@ -94,6 +94,7 @@ function _$(arg) {
     }
   });
 }
+
 _$.prototype._getWidthWithRef = function(arg, ref) {
   return (
     //directly returning one or the other dependent on arguments causes initialization at 0
@@ -102,6 +103,7 @@ _$.prototype._getWidthWithRef = function(arg, ref) {
     (((ref && ref.clientWidth) || window.innerWidth) / 100) * arg
   );
 };
+
 _$.prototype._getHeightWithRef = function(arg, ref) {
   return (
     //directly returning one or the other dependent on arguments causes initialization at 0
@@ -110,6 +112,7 @@ _$.prototype._getHeightWithRef = function(arg, ref) {
     (((ref && ref.clientHeight) || window.innerHeight) / 100) * arg
   );
 };
+
 _$.prototype.addListener = function(els, evt, cb, options, useCapture) {
   if (
     typeof options === "boolean" &&
@@ -185,6 +188,7 @@ _$.prototype.addListener = function(els, evt, cb, options, useCapture) {
     }
   }
 };
+
 _$.prototype.OBJ = function(nestedObj, pathArr, defaultValue, noUndefined) {
   if (this.arrayLike(nestedObj) && this.arg) {
     noUndefined = defaultValue;
@@ -198,6 +202,7 @@ _$.prototype.OBJ = function(nestedObj, pathArr, defaultValue, noUndefined) {
     return void 0 || defaultValue;
   }, nestedObj);
 };
+
 _$.prototype.glideTo = function(latitude, speed) {
   latitude = latitude || 0;
   speed = speed || 0.5;
@@ -217,6 +222,7 @@ _$.prototype.glideTo = function(latitude, speed) {
     oldTimestamp = window.performance.now();
   window.requestAnimationFrame(step);
 };
+
 _$.prototype.arrayLike = function(obj) {
   return (
     Array.isArray(obj) ||
@@ -226,6 +232,7 @@ _$.prototype.arrayLike = function(obj) {
       (0 === obj.length || (obj.length > 0 && obj.length - 1 in obj)))
   );
 };
+
 _$.prototype.id = function(selector, parent) {
   if (!selector && this.arg) {
     parent = selector;
@@ -234,6 +241,7 @@ _$.prototype.id = function(selector, parent) {
   parent = parent || document;
   return parent.getElementById(selector);
 };
+
 _$.prototype.cl = function(selector, parent) {
   if (!selector && this.arg) {
     parent = selector;
@@ -242,6 +250,7 @@ _$.prototype.cl = function(selector, parent) {
   parent = parent || document;
   return parent.getElementsByClassName(selector);
 };
+
 _$.prototype.tags = function(selector, parent) {
   if (!selector && this.arg) {
     parent = selector;
@@ -250,6 +259,7 @@ _$.prototype.tags = function(selector, parent) {
   parent = parent || document;
   return parent.getElementsByTagName(selector);
 };
+
 _$.prototype.qs = function(selector, parent) {
   if (!selector && this.arg) {
     parent = selector;
@@ -258,6 +268,7 @@ _$.prototype.qs = function(selector, parent) {
   parent = parent || document;
   return parent.querySelector(selector);
 };
+
 _$.prototype.qsa = function(selector, parent) {
   if (!selector && this.arg) {
     parent = selector;
@@ -266,12 +277,15 @@ _$.prototype.qsa = function(selector, parent) {
   parent = parent || document;
   return parent.querySelectorAll(selector);
 };
+
 _$.prototype.el = function(selector) {
   return document.createElement(selector);
 };
+
 _$.prototype.toggleActive = function(el) {
   return this.OBJ(el, ["classList"], el.className).toggle("active");
 };
+
 _$.prototype.frag = function(els, _parent) {
   var frag = document.createDocumentFragment();
   _parent = _parent || frag;
@@ -299,12 +313,15 @@ _$.prototype.frag = function(els, _parent) {
     frag
   );
 };
+
 _$.prototype.remove = function(el) {
   return name.parentElement && el.parentElement.removeChild(el);
 };
+
 _$.prototype.before = function(el, newEl) {
   return name.parentElement && el.parentElement.insertBefore(newEl, el);
 };
+
 _$.prototype.kids = function(el, findParentBy) {
   if ("object" === typeof el && !findParentBy)
     return this.arrayLike(el) ? el[0].children : el.children;
@@ -319,6 +336,7 @@ _$.prototype.kids = function(el, findParentBy) {
     )
   );
 };
+
 _$.prototype.vpu = function(num, type) {
   var clientHeight = window.innerHeight,
     clientWidth = window.innerWidth,
@@ -339,6 +357,7 @@ _$.prototype.vpu = function(num, type) {
       return vw * num;
   }
 };
+
 _$.prototype.changeOnScroll = function(
   breakpoint,
   target,
@@ -373,6 +392,7 @@ _$.prototype.changeOnScroll = function(
     true
   );
 };
+
 _$.prototype.popUp = function(
   children,
   confirmText,
@@ -435,7 +455,8 @@ _$.prototype.popUp = function(
   ]);
   document.body.appendChild(frag);
 };
-_$.prototype.count = function(arr, value) {
+
+_$.prototype._count = function(arr, value) {
   if (!value && this.arg) {
     value = arr;
     arr = this.arg;
@@ -444,7 +465,8 @@ _$.prototype.count = function(arr, value) {
     return n + Number(val === value);
   }, 0);
 };
-_$.prototype.relativeUrl = function(url) {
+
+_$.prototype._relativeUrl = function(url) {
   function removeBase(url) {
     return url.slice(url.indexOf("/"));
   }
@@ -454,11 +476,12 @@ _$.prototype.relativeUrl = function(url) {
       : /^(www\.)?.+?\.\w{2,4}\//.test(this(url).slash)
       ? removeBase(url)
       : /^\.\./.test(url)
-      ? this.rewriteDotPath(url)
+      ? this._rewriteDotPath(url)
       : url
     : "";
 };
-_$.prototype.extractBase = function(url) {
+
+_$.prototype._extractBase = function(url) {
   function extract(uri) {
     return uri
       .split("://")
@@ -469,19 +492,21 @@ _$.prototype.extractBase = function(url) {
     url && extract(url) ? url : this.OBJ(window, ["location", "href"])
   );
 };
-_$.prototype.absoluteUrl = function(url, file) {
+
+_$.prototype._absoluteUrl = function(url, file) {
   return (
     (file = file || ""),
     "//" +
-      this.extractBase(url) +
-      this.leadAndTrailSlash(this.relativeUrl(url)) +
+      this._extractBase(url) +
+      this._leadAndTrailSlash(this._relativeUrl(url)) +
       file
   );
 };
-_$.prototype.rewriteDotPath = function(url) {
+
+_$.prototype._rewriteDotPath = function(url) {
   var dotPathArr = url.split("/").filter(Boolean),
-    relHref = this.relativeUrl(this.OBJ(window, ["location", "href"])),
-    navUp = this.count(dotPathArr, "..");
+    relHref = this._relativeUrl(this.OBJ(window, ["location", "href"])),
+    navUp = this._count(dotPathArr, "..");
   return (
     "/" +
     (function(num) {
@@ -494,72 +519,62 @@ _$.prototype.rewriteDotPath = function(url) {
     dotPathArr.slice(navUp)
   );
 };
-_$.prototype.leadAndTrailSlash = function(path) {
+
+_$.prototype._leadAndTrailSlash = function(path) {
   var leadPath = /^\//.test(path) ? path : "/" + path;
   return /\/$/.test(leadPath) ? leadPath : leadPath + "/";
 };
+
 _$.prototype.frame = function(path, file, ext) {
   ext = ext || "html";
-  var hash = this.OBJ(window, ["location", "hash"]);
-  file = this.OBJ(window, ["history", "state"])
-    ? this.OBJ(window, ["history", "state", "frame"])
-    : hash
-    ? hash.slice(1)
-    : file;
-  var rootnode = this.id("root"),
-    req = new XMLHttpRequest(),
-    name = this.absoluteUrl(path, file) + "." + ext;
+  var rootnode = this.id("root");
+  var hash = this.OBJ(location, ["hash"]);
+  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
+  var req = new XMLHttpRequest();
+  var name = this._absoluteUrl(path, file) + "." + ext;
   req.open("GET", name, true);
   req.onreadystatechange = function() {
     if (4 === req.readyState) {
-      if (200 !== req.status) throw new Error("XMLHttpError: " + req.status);
+      if (200 !== req.status)
+        throw new Error("XMLHttpError: " + req.status + "\n" + req.response);
       rootnode.innerHTML = req.responseText;
     }
   };
   req.send(null);
 };
+
 _$.prototype.initFrame = function(path) {
-  var that = this,
-    hash = this.OBJ(window, ["location", "hash"]),
-    file = this.OBJ(window, ["history", "state"])
-      ? this.OBJ(window, ["history", "state", "frame"])
-      : hash
-      ? hash.slice(1)
-      : "";
+  var _this = this;
+  var hash = this.OBJ(location, ["hash"]);
+  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
   this.addListener(
     window,
     ["hashchange", "popstate"],
     function(e) {
       var frame = e.state ? e.state.frame : e.newURL.split("#").pop();
-      that.toggleActive(that.id(frame));
-      that.frame(path, file);
+      _this.toggleActive(that.id(frame));
+      _this.frame(path, file);
     },
-    false,
     { once: false, passive: false, capture: false },
     false
   );
-  this.frame(path, file);
   this.toggleActive(this.id(file));
+  return this.frame(path, file);
 };
+
 _$.prototype.frameLink = function(path, name, def) {
   name = name || def;
-  var hash = this.OBJ(window, ["location", "hash"]),
-    file = this.OBJ(window, ["history", "state"])
-      ? this.OBJ(window, ["history", "state", "frame"])
-      : hash
-      ? hash.slice(1)
-      : "";
-  if (
-    (this.toggleActive(this.id(file)),
-    this.OBJ(window, ["history", "pushState"]))
-  ) {
+  var hash = this.OBJ(location, ["hash"]);
+  var file = this.OBJ(history, ["state", "frame"], hash ? hash.slice(1) : "");
+  if ((this.toggleActive(this.id(file)), this.OBJ(history, ["pushState"]))) {
     var state = { frame: name },
       popState = new PopStateEvent("popstate", { state: state });
-    window.history.pushState({ frame: name }, name, "#" + name);
+    history.pushState({ frame: name }, name, "#" + name);
     this.frame(path, name);
     dispatchEvent(popState);
-  } else window.location.hash = name;
+  } else location.hash = name;
 };
+
 _$.prototype.getXML = function(url, cb) {
   if (!url && this.arg) url = this.arg;
   if (typeof url === "function" && this.arg) {
@@ -574,6 +589,7 @@ _$.prototype.getXML = function(url, cb) {
   };
   req.send(null);
 };
+
 _$.prototype.parseXML = function(text, cb) {
   if (!text && this.arg) text = this.arg;
   if (typeof text === "function" && this.arg) {

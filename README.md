@@ -281,6 +281,45 @@ The array and it's children up the `Virtual DOM` tree will append themselves to 
 - **els**: `array` containing objects describing elements in `Virtual DOM`
 - **_parent**: interal. Used within the `frag` function to recursively append children to parent elements in the `Virtual DOM`
 
+**example**
+```js
+(function(_$){
+  var frag = _$.frag([
+    {
+      type: "div",
+      id: "__popUp",
+      style: {
+        backgroundColor: "rgba(130, 130, 130, 0.5)",
+        position: "fixed",
+        width: "100vw",
+        height: "100vh",
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        zIndex: 5555
+      },
+      children: [
+        {
+          type: "div",
+          className: "popUp",
+          style: boxStyle,
+          children: [
+            type: "span",
+            className: "btn",
+            text: confirmText,
+            style: closeBtnStyle,
+            onclick: function() {
+              return _$.remove(_$.id("__popUp"));
+            }
+          ]
+        }
+      ]
+    }
+  ]);
+  document.body.appendChild(frag);
+})(new _$)
+```
 
 ### `remove(el)`
 **description**
@@ -314,89 +353,354 @@ Find all of a specified element's children.
 ### `vpu(num, type)`
 **description**
 
+Emulates [viewport units](https://www.w3.org/TR/css3-values/#viewport-relative-lengths) in JavaScript. Returns a `Number` which represents the viewport unit value converted to pixels. `num` may be supplied as `this.arg`, as in `_$(num).vpu(type)`
+
 **arguments**
-num, type
+- **num**: number of the `type` of viewport unit.
+- **type**: the type of viewport unit (`"vw"`, `"vh"`, `"vmax"`, `"vmin"`). these are detailed in the individual methods [above](https://github.com/LongStoryMedia/long-story-library#vwref).
 
 
 ### `changeOnScroll(breakpoint, target, cbTrue, cbFalse, windowObj)`
 **description**
 
-**arguments**
-breakpoint, target, cbTrue, cbFalse, windowObj
+Passively listens to the `"scroll"` event on the `windowObj`, and executes `cbTrue` on the `target` while `scrollY` is past the `breakpoint`, and executes `cbFalse` if `scrollY` crosses back below the `breakpoint`. Use case would be changing the `size`, `color`, `position`, etc. of the header on `"scroll"`.
 
+**arguments**
+- **breakpoint**\
+<u>type</u>: `number`\
+<u>description</u>: `number` that represents the `scrollY` at which the callbacks are executed.
+
+- **target**\
+<u>type</u>: `HTMLElement`\
+<u>description</u>: The target on which to execute the callbacks.
+
+- **cbTrue**\
+<u>type</u>: `function`\
+<u>description</u>: Callback for when `scrollY` passes the `breakpoint`.
+
+- **cbFalse**\
+<u>type</u>: `function`\
+<u>description</u>: Callback for when `scrollY` passes back from beyond the `breakpoint` to below.
+
+- **windowObj**\
+<u>type</u>: `window`, `HTMLElement`, `array`, or array-like `object` (e.g. `NodeList`) of `HTMLElement`s.\
+<u>description</u>: The primary scrolling container. This is almost always `Window`, but some frameworks use different container elements as their primary scrolling object, and still others use multiple, or different containers for different states.
+
+**example**
+```js
+(function(_$) {
+  _$.changeOnScroll(
+    // breakpoint
+    _$.vpu(50, "vmin"),
+    // target
+    _$.qs(".Header"),
+    // cbTrue
+    function(header) {
+      return _$.toggleActive("solid");
+    },
+    // cbFalse
+    function(header) {
+      return _$.toggleActive("solid");
+    },
+    // windowObj
+    [ window, _$.id("s4-workspace") ]
+  )
+})(new _$)
+```
 
 ### `popUp(children, confirmText, btnClick, boxStyle, closeBtnStyle)`
 **description**
 
+Internally uses <code>\_$.[frag](https://github.com/LongStoryMedia/long-story-library#fragels-_parent)</code> to create a simple popup.
+
 **arguments**
-children, confirmText, btnClick, boxStyle, closeBtnStyle
+- **children**: This argument is passed to `_$.frag`. see [above](https://github.com/LongStoryMedia/long-story-library#fragels-_parent) for details.
+
+- **confirmText**: text to appear on the button in the popup
+
+- **btnClick**: callback to execute on the `"click"` event on the button
+
+- **boxStyle**: style `object` for the `popUp` container, e.g. `{ width: "90%", zIndex: 999, color: "#fff" }`.
+
+- **closeBtnStyle**: style `object` for the button to close the popUp.
 
 
-### `count(arr, value)`
+
+### `_count(arr, value)`
 **description**
 
+Internal.
+
+Count the number of times `value` occurs in `arr`.
+
 **arguments**
-arr, value
+- **arr**: `array` to iterate.
 
+- **value**: the `value` to count.
 
-### `relativeUrl(url)`
+### `_relativeUrl(url)`
 **description**
 
+Internal.
+
+Given a URL, will return the path from the root as `String`
 **arguments**
-url
+- **url**: url string to convert
 
 
-### `extractBase(url)`
+### `_extractBase(url)`
 **description**
 
+Internal.
+
+Given a URL, returns the `origin`. Useful when browsers don't support `window.location.origin`
+
 **arguments**
-url
+- **url**
 
 
-### `absoluteUrl(url, file)`
+### `_absoluteUrl(url, file)`
 **description**
 
+Internal.
+
 **arguments**
-url, file
+- **url**
+- **file**
 
 
-### `rewriteDotPath(url)`
+### `_rewriteDotPath(url)`
 **description**
 
-**arguments**
-url
+Internal.
+
+**arguments**\
+- **url**
 
 
-### `leadAndTrailSlash(path)`
+### `_leadAndTrailSlash(path)`
 **description**
 
-**arguments**
-path
+Internal.
 
+**arguments**
+- **path**
+
+### `frame(path, file, ext, rootnode)`
+
+**description**
+
+Used in conjunction with `frameLink` and `initFrame` below, initializes a small framework for rendering html/txt documents that are held in a common directory. These methods may expand and become a separate, more focused library, but will still be available from this library in that event.
+
+There is an example below all three demonstrating how they all tie together
+
+**arguments**
+- **path**\
+<u>type</u>: `string`\
+<u>description</u>: Path to directory. Can accept a full URL if the `origin` differs
+
+- **file**\
+<u>type</u>: `string`\
+<u>description</u>: Name of the file without the extension.
 
 ### `initFrame(path)`
 **description**
 
-**arguments**
-path
+Initializes [frame](https://github.com/LongStoryMedia/long-story-library#framepath-_file-_ext-_rootnode) with the default file (if supplied), and adds appropriate event listeners for state changes.
 
+**arguments**
+- **path**: Path to directory where text documents are stored. Supplied to `frame` method.
 
 ### `frameLink(path, name, def)`
 **description**
 
-**arguments**
-path, name, def
+Used to create a globally namespaced method that "links" from one document to another. This method could probably be used for that purpose itself, but it's semantically easier for the use (as you'll see below) to create something more intuitive (ex - `Link(name)`) that is available on the global (`window`) `object`.
 
+**arguments**
+- **path**: Path to directory where text documents are stored. Supplied to `frame` method.
+
+- **name**: Name of the file to request (without the extension).
+
+- **def**: The default file to fall back on in the event of a failed request.
+
+## `frame` example
+
+This is designed to be set into an existing webpage. So the assumption is that there will be html around `frame` that will not change from request to request. Part of that html is assumed to be a menu of sorts wherein each menu item has an `id` that corresponds to the name of the file that will be requested when it is clicked. The other important part of that html is the `rootnode`. This is the `Node` into which the `response` from the network request to the file will populate. As of now, it must be an element with the id "root" (e.g. - `_$("root").id()`). It should also be empty as anything inside `rootnode` before the network request will be permanently replaced upon initialization.
+
+```js
+// /samplingplan.js
+(function(_$) {
+  // set up arguments
+  var path = "/lab/samplingplan/Documents/";
+  var hash = _$.OBJ(location, ["hash"]);
+  var file = hash ? hash.slice(1) : "Malt";
+
+  // menu items that correspond to our text files
+  var menuItems = [
+    "Mill",
+    "HeatEX",
+    "ADD-Water",
+    "Ferment",
+    "ADD-O2-Yeast",
+    "Whirl",
+    "ADD-Hops",
+    "REMOVE-Trub",
+    "Bottle-CanorKeg",
+    "Lauter",
+    "Clarify",
+    "REMOVE-Grain",
+    "Condition",
+    "Kettle",
+    "Brite",
+    "Mash",
+    "ADD-CO2",
+    "Malt"
+  ];
+  // globally available method for "linking" our files
+  // this can be used within the files to link to other files
+  // used as <div onclick="Link('Ferment')">Ferment</div>
+  window.Link = function(name) {
+    _$.frameLink(path, name, "Malt");
+  };
+  // this example comes from a particularly unique case
+  // where there were multiples of some menuItems
+  // something to do with wanting to have a layout that
+  // reflects a specific process in which certain steps
+  // are repeated. so I had to get a little creative with
+  // adding the event listeners
+  menuItems.forEach(function(btn) {
+
+    if (_$.qsa("#" + btn).length > 1) {
+      // if more than one, add to each
+      // addListener method handles NodeList
+      _$.addListener(
+        _$.qsa("#" + btn),
+        "click",
+        function(e) {
+          Link(e.target.id);
+        },
+        { once: false, passive: false }
+      );
+    }
+
+    if (_$.qsa("#" + btn).length === 1) {
+      // else just apply to the one and use id method
+      _$.addListener(
+        _$.id(btn),
+        "click",
+        function(e) {
+          Link(e.target.id);
+        },
+        { once: false, passive: false }
+      );
+    }
+  });
+
+  // finally, attach frame initialization to DOMContentLoaded
+  _$.addListener(document, "DOMContentLoaded", _$.initFrame(path));
+
+})(new $$());
+
+```
+```html
+<!-- index.html -->
+
+<div class="menu" style="width: 200px; float: left">
+
+  <div id="Mill">Mill</div>
+  <div id="HeatEX">HeatEX</div>
+  <div id="ADD-Water">ADD-Water</div>
+  <div id="Ferment">Ferment</div>
+  <div id="ADD-O2-Yeast">ADD-O2-Yeast</div>
+  <div id="Whirl">Whirl</div>
+  <div id="ADD-Hops">ADD-Hops</div>
+  <div id="REMOVE-Trub">REMOVE-Trub</div>
+  <div id="Bottle-CanorKeg">Bottle-CanorKeg</div>
+  <div id="Lauter">Lauter</div>
+  <div id="Clarify">Clarify</div>
+  <div id="REMOVE-Grain">REMOVE-Grain</div>
+  <div id="Condition">Condition</div>
+  <div id="Kettle">Kettle</div>
+  <div id="Brite">Brite</div>
+  <div id="Mash">Mash</div>
+  <div id="ADD-CO2">ADD-CO2</div>
+  <div id="Malt">Malt</div>
+</div>
+<div id="root"></div>
+<script type="text/javascript" src="/samplingplan.js"></script>
+```
 
 ### `getXML(url, cb)`
 **description**
 
+Written alongside `parseXML`, but really isn't specific to XML. Pretty much just a wrapper around an XMLHttpRequest, but greatly simplified, and cuts out the boilerplate request code. only makes `GET` requests. provides a callback for the reponse. `url` may be supplied as `this.arg` as in `_$(url).getXML(cb)`
+
 **arguments**
-url, cb
+- **url**: request url.
+- **cb**: function to execute on the response returned from the request.
 
 
 ### `parseXML(text, cb)`
 **description**
 
+Parses XML (and html) `string` into a `DOM`, providing native browser functions for traversing the `DOM` tree. provides a callback to be executed on the resulting `DOM`. `test` may be supplied as `this.arg` as in `_$(url).parseXML(cb)`
+
 **arguments**
-text, cb
+- **text**: string to parse.
+- **cb**: callback to execute on `DOM`
+
+### example for `XML` methods above
+this incorporates [react-gallery-designer](https://github.com/LongStoryMedia/react-gallery-designer)'s somewhat unique umd build, which wraps a `React` component in a custom function making it quite portable
+```js
+(function(_$) {
+  // get rss XML
+  _$.getXML(
+    "https://twitrss.me/twitter_user_to_rss/?user=plantdisease",
+    function(rss) {
+      // parse it
+      _$.parseXML(rss, function(doc) {
+        // construct our feed segments
+        var images = Array.from($$.tags("item", doc), function(item, i) {
+          return {
+            caption: _$.qs("title", item).innerHTML.slice(0, 100) + " ...",
+            link: _$.qs("link", item).innerHTML,
+            style: {
+              // gives every other item a grey background
+              backgroundColor: Math.ceil(i % 2) ? "#dcdbdb" : "#fff"
+            },
+            target: true
+          };
+        });
+
+        var settings = {
+          inview: 2,
+          auto: true,
+          playpause: false,
+          pauseonhover: false,
+          direction: "left",
+          animation: "slide",
+          orientation: "vertical",
+          speed: 5000,
+          transitionspeed: 1,
+          arrows: false,
+          advance: 1,
+          showcaptions: true,
+          linkslides: true,
+          thumbnails: false,
+          contain: false,
+          noImages: true
+        };
+        // return custom rotating feed
+        return __RGD({
+          images: images,
+          settings: settings,
+          captionStyle: { color: "#595956", fontWeight: "bold", lineHeight: 2, fontSize: "1.05rem" },
+          imgStyle: { padding: "0 1rem" },
+          style: { height: "9rem" },
+          domId: "twitterFeed"
+        });
+      });
+    }
+  );
+})(new _$;
+```
