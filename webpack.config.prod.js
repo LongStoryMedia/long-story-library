@@ -3,7 +3,7 @@ const webpack = require("webpack");
 
 module.exports = {
   mode: "production",
-  entry: ["./polyfills.js", "./index.js"],
+  entry: "./index.js",
   output: {
     path: path.resolve(__dirname, "build"),
     filename: `_$.js`,
