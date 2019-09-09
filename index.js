@@ -196,7 +196,7 @@ _$.prototype.OBJ = function(nestedObj, pathArr, def) {
     nestedObj = this.arg;
   }
   var reducer = pathArr.reduce(function(obj, key) {
-    return obj && "undefined" !== obj[key] ? obj[key] : void 0;
+    return obj && "undefined" !== typeof obj[key] ? obj[key] : void 0;
   }, nestedObj);
   return typeof reducer !== "undefined" ? reducer : def;
 };
@@ -282,7 +282,7 @@ _$.prototype.el = function(selector) {
 
 _$.prototype.toggleActive = function(el) {
   return el && el.classList && el.classList.toggle("active");
-}
+};
 
 _$.prototype.frag = function(els, _parent) {
   var frag = document.createDocumentFragment();
@@ -546,7 +546,7 @@ _$.prototype.frame = function(path, file) {
       }
     }),
     req.send(null);
-}
+};
 
 _$.prototype.initFrame = function(path) {
   var that = this,
@@ -569,7 +569,7 @@ _$.prototype.initFrame = function(path) {
   ),
     this.frame(path, file),
     this.toggleActive(this.id(file));
-}
+};
 
 _$.prototype.frameLink = function(path, name, def) {
   name = name || def;
@@ -586,7 +586,7 @@ _$.prototype.frameLink = function(path, name, def) {
       this.frame(path, name),
       dispatchEvent(popState);
   } else window.location.hash = name;
-}
+};
 
 _$.prototype.getXML = function(url, cb) {
   if (!url && this.arg) url = this.arg;
