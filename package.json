@@ -1,6 +1,6 @@
 {
   "name": "long-story-library",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Raw javaScript utility library. Useful tools for javaScript developers.",
   "main": "build/_$.js",
   "eslintConfig": {
