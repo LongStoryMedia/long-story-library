@@ -2,6 +2,7 @@
 function _$(arg) {
   if (!(this instanceof _$)) return new _$(arg);
   this.arg = arg;
+  this._window = typeof window === "undefined" ? {} : window;
   Object.defineProperties(this, {
     bool: {
       get: function() {
@@ -99,8 +100,8 @@ _$.prototype._getWidthWithRef = function(arg, ref) {
   return (
     //directly returning one or the other dependent on arguments causes initialization at 0
     //it will then remain at 0 when ref is supplied.
-    //but 0, when coerced to boolean, will evaluate to false, causing initialization with window
-    (((ref && ref.clientWidth) || window.innerWidth) / 100) * arg
+    //but 0, when coerced to boolean, will evaluate to false, causing initialization with this._window
+    (((ref && ref.clientWidth) || this._window.innerWidth) / 100) * arg
   );
 };
 
@@ -108,8 +109,8 @@ _$.prototype._getHeightWithRef = function(arg, ref) {
   return (
     //directly returning one or the other dependent on arguments causes initialization at 0
     //it will then remain at 0 when ref is supplied.
-    //but 0, when coerced to boolean, will evaluate to false, causing initialization with window
-    (((ref && ref.clientHeight) || window.innerHeight) / 100) * arg
+    //but 0, when coerced to boolean, will evaluate to false, causing initialization with this._window
+    (((ref && ref.clientHeight) || this._window.innerHeight) / 100) * arg
   );
 };
 
@@ -132,8 +133,8 @@ _$.prototype.addListener = function(els, evt, cb, options, useCapture) {
         return (passiveSupport = true);
       }
     };
-    window.addEventListener("test", options, options);
-    window.removeEventListener("test", options, options);
+    this._window.addEventListener("test", options, options);
+    this._window.removeEventListener("test", options, options);
   } catch (e) {
     passiveSupport = false;
   }
@@ -206,19 +207,19 @@ _$.prototype.glideTo = function(latitude, speed) {
   speed = speed || 0.5;
   function step(newTimestamp) {
     scrollCount += Math.PI / (speed / (newTimestamp - oldTimestamp));
-    scrollCount >= Math.PI && window.scrollTo(0, 0);
-    0 !== window.scrollY &&
-      window.scrollTo(
+    scrollCount >= Math.PI && this._window.scrollTo(0, 0);
+    0 !== this._window.scrollY &&
+      this._window.scrollTo(
         0,
         Math.round(cosParameter + cosParameter * Math.cos(scrollCount))
       );
     oldTimestamp = newTimestamp;
-    window.requestAnimationFrame(step);
+    this._window.requestAnimationFrame(step);
   }
-  var cosParameter = window.scrollY / 2,
+  var cosParameter = this._window.scrollY / 2,
     scrollCount = 0,
-    oldTimestamp = window.performance.now();
-  window.requestAnimationFrame(step);
+    oldTimestamp = this._window.performance.now();
+  this._window.requestAnimationFrame(step);
 };
 
 _$.prototype.arrayLike = function(obj) {
@@ -336,8 +337,8 @@ _$.prototype.kids = function(el, findParentBy) {
 };
 
 _$.prototype.vpu = function(num, type) {
-  var clientHeight = window.innerHeight,
-    clientWidth = window.innerWidth,
+  var clientHeight = this._window.innerHeight,
+    clientWidth = this._window.innerWidth,
     vw = clientWidth / 100,
     vh = clientHeight / 100,
     vmax = vw > vh ? vw : vh,
@@ -378,12 +379,12 @@ _$.prototype.changeOnScroll = function(
         if (windowObj.hasOwnProperty(node)) targets.push(windowObj[node]); //eslint-disable-line
     } else targets.push(windowObj);
   }
-  windowObj = targets.concat(window);
+  windowObj = targets.concat(this._window);
   return this.addListener(
     windowObj,
     ["scroll", "load"],
     function(e) {
-      return e.target.scrollTop >= breakpoint || window.scrollY >= breakpoint
+      return e.target.scrollTop >= breakpoint || this._window.scrollY >= breakpoint
         ? cbTrue(target)
         : cbFalse(target);
     },
@@ -487,7 +488,7 @@ _$.prototype._extractBase = function(url) {
       .split("/")[0];
   }
   return extract(
-    url && extract(url) ? url : this.OBJ(window, ["location", "href"])
+    url && extract(url) ? url : this.OBJ(this._window, ["location", "href"])
   );
 };
 
@@ -503,7 +504,7 @@ _$.prototype._absoluteUrl = function(url, file) {
 
 _$.prototype._rewriteDotPath = function(url) {
   var dotPathArr = url.split("/").filter(Boolean),
-    relHref = this._relativeUrl(this.OBJ(window, ["location", "href"])),
+    relHref = this._relativeUrl(this.OBJ(this._window, ["location", "href"])),
     navUp = this._count(dotPathArr, "..");
   return (
     "/" +
@@ -524,9 +525,9 @@ _$.prototype._leadAndTrailSlash = function(path) {
 };
 
 _$.prototype.frame = function(path, file) {
-  var hash = this.OBJ(window, ["location", "hash"]);
-  file = window.history.state
-    ? this.OBJ(window, ["history", "state", "frame"])
+  var hash = this.OBJ(this._window, ["location", "hash"]);
+  file = this._window.history.state
+    ? this.OBJ(this._window, ["history", "state", "frame"])
     : hash
     ? hash.slice(1)
     : file;
@@ -550,14 +551,14 @@ _$.prototype.frame = function(path, file) {
 
 _$.prototype.initFrame = function(path) {
   var that = this,
-    hash = this.OBJ(window, ["location", "hash"]),
-    file = window.history.state
-      ? this.OBJ(window, ["history", "state", "frame"])
+    hash = this.OBJ(this._window, ["location", "hash"]),
+    file = this._window.history.state
+      ? this.OBJ(this._window, ["history", "state", "frame"])
       : hash
       ? hash.slice(1)
       : "";
   this.addListener(
-    window,
+    this._window,
     ["hashchange", "popstate"],
     function(e) {
       var frame = e.state ? e.state.frame : e.newURL.split("#").pop();
@@ -573,19 +574,19 @@ _$.prototype.initFrame = function(path) {
 
 _$.prototype.frameLink = function(path, name, def) {
   name = name || def;
-  var hash = this.OBJ(window, ["location", "hash"]),
-    file = window.history.state
-      ? this.OBJ(window, ["history", "state", "frame"])
+  var hash = this.OBJ(this._window, ["location", "hash"]),
+    file = this._window.history.state
+      ? this.OBJ(this._window, ["history", "state", "frame"])
       : hash
       ? hash.slice(1)
       : "";
-  if ((this.toggleActive(this.id(file)), window.history.pushState)) {
+  if ((this.toggleActive(this.id(file)), this._window.history.pushState)) {
     var state = { frame: name },
       popState = new PopStateEvent("popstate", { state: state });
-    window.history.pushState({ frame: name }, name, "#" + name),
+    this._window.history.pushState({ frame: name }, name, "#" + name),
       this.frame(path, name),
       dispatchEvent(popState);
-  } else window.location.hash = name;
+  } else this._window.location.hash = name;
 };
 
 _$.prototype.getXML = function(url, cb) {
